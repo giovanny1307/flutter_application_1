@@ -1,6 +1,7 @@
+//const => compile time constant, el
 import 'package:flutter/material.dart';
-import 'question.dart';
-import 'answer.dart';
+import 'package:flutter_application_1/quiz.dart';
+import 'result.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,55 +22,79 @@ class MyApp extends StatefulWidget {
 // al elemento
 class _MyAppState extends State<MyApp> {
   var _questionIndex = 0;
+  var _totalScore = 0;
+
+  void _resetQuiz() {
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
+  }
 
   @override
   build(context) {
     // pase el pointer, no la función.
-    var questions = [
+    // se usa final si el valor nunca nunca cambia luego de ser asignado
+    // el const como que no se puede inicializar luego de declarada
+    // la propiedad
+
+    //final => runtime constant value, se puede asignar el valor
+    // luego de que corre el codigo
+
+    const questions = [
       {
         'questionTex': 'quelle est ta couleur préférée?',
-        'answers': ['rouge', 'vert', 'blanc', 'jaune']
+        'answers': [
+          {'text': 'rouge', 'score': 10},
+          {'text': 'vert', 'score': 4},
+          {'text': 'blanc', 'score': 2},
+          {'text': 'jaune', 'score': 12}
+        ]
       },
       {
         'questionTex': 'quel est ton animal préféré?',
-        'answers': ['chat', 'chien', 'lion']
+        'answers': [
+          {'text': 'chat', 'score': 10},
+          {'text': 'chien', 'score': 10},
+          {'text': 'lion', 'score': 10}
+        ]
       },
       {
         'questionTex': 'Quelle est votre émission préférée?',
-        'answers': ['braking bad', 'got', 'mr robot', 'glee']
+        'answers': [
+          {'text': 'braking bad', 'score': 10},
+          {'text': 'Game of Thrones', 'score': 10},
+          {'text': 'Mr Robot', 'score': 10},
+          {'text': 'Glee', 'score': 100}
+        ]
       }
     ];
 
-    void _answerQuestion() {
+    void _answerQuestion(int score) {
+      print('Score => $score');
       setState(() {
-        if (_questionIndex == questions.length - 1) {
-          return;
-        }
+        _totalScore = _totalScore + score;
         _questionIndex = _questionIndex + 1;
-        print("Current question index => $_questionIndex");
       });
     }
 
+    print('Current Score => $_totalScore');
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text('My first app'),
         ),
-        body: Column(
-          children: <Widget>[
-            Question(
-              questions[_questionIndex]['questionTex'],
-            ),
-            ...(questions[_questionIndex]['answers'] as List<String>).map((e) {
-              return Answer(_answerQuestion, e);
-            }).toList()
-          ],
-        ),
+        body: _questionIndex < questions.length
+            ? Quiz(
+                callback: _answerQuestion,
+                questions: questions,
+                questionIndex: _questionIndex,
+              )
+            : Result(_totalScore, _resetQuiz),
       ),
     );
   }
 }
-
 
 /**
   ElevatedButton(onPressed: _answerQuestion, child: Text('Option 1')),
